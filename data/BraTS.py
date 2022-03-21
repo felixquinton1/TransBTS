@@ -48,10 +48,12 @@ class Random_Crop(object):
         H = random.randint(0, 240 - 128)
         W = random.randint(0, 240 - 128)
         D = random.randint(0, 160 - 128)
-
-        image = image[H: H + 128, W: W + 128, D: D + 128, ...]
-        label = label[..., H: H + 128, W: W + 128, D: D + 128]
-
+        # image = image[H: H + 128, W: W + 128, D: D + 128, ...]
+        # label = label[..., H: H + 128, W: W + 128, D: D + 128]
+        # image = image[0:160, 0:160, 3:67, ...]
+        # label = label[..., 0:160,0:160,3:67]
+        image = image[128:256, 128:256, 3:67, ...]
+        label = label[..., 128:256,128:256,3:67]
         return {'image': image, 'label': label}
 
 
@@ -60,8 +62,8 @@ class Random_intencity_shift(object):
         image = sample['image']
         label = sample['label']
 
-        scale_factor = np.random.uniform(1.0-factor, 1.0+factor, size=[1, image.shape[1], 1, image.shape[-1]])
-        shift_factor = np.random.uniform(-factor, factor, size=[1, image.shape[1], 1, image.shape[-1]])
+        scale_factor = np.random.uniform(1.0-factor, 1.0+factor, size=[image.shape[0], image.shape[1], image.shape[2], image.shape[-1]])
+        shift_factor = np.random.uniform(-factor, factor, size=[image.shape[0], image.shape[1], image.shape[2], image.shape[-1]])
 
         image = image*scale_factor+shift_factor
 
@@ -85,8 +87,8 @@ class Pad(object):
         image = sample['image']
         label = sample['label']
 
-        image = np.pad(image, ((0, 0), (0, 0), (0, 5), (0, 0)), mode='constant')
-        label = np.pad(label, ((0, 0), (0, 0), (0, 5)), mode='constant')
+        # image = np.pad(image, ((0, 0), (0, 0), (0, 8), (0, 0)), mode='constant')
+        # label = np.pad(label, ((0, 0), (0, 0), (0, 8)), mode='constant')
         return {'image': image, 'label': label}
     #(240,240,155)>(240,240,160)
 
@@ -96,6 +98,7 @@ class ToTensor(object):
     def __call__(self, sample):
         image = sample['image']
         image = np.ascontiguousarray(image.transpose(3, 0, 1, 2))
+        image = np.ascontiguousarray(image)
         label = sample['label']
         label = np.ascontiguousarray(label)
 
@@ -108,7 +111,7 @@ class ToTensor(object):
 def transform(sample):
     trans = transforms.Compose([
         Pad(),
-        # Random_rotate(),  # time-consuming
+        Random_rotate(),  # time-consuming
         Random_Crop(),
         Random_Flip(),
         Random_intencity_shift(),
@@ -137,7 +140,7 @@ class BraTS(Dataset):
                 line = line.strip()
                 name = line.split('/')[-1]
                 names.append(name)
-                path = os.path.join(root, line, name + '_')
+                path = os.path.join(root, line[:-7])
                 paths.append(path)
                 self.lines.append(line)
         self.mode = mode

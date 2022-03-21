@@ -34,7 +34,7 @@ class TransformerBTS(nn.Module):
         self.attn_dropout_rate = attn_dropout_rate
         self.conv_patch_representation = conv_patch_representation
 
-        self.num_patches = int((img_dim // patch_dim) ** 3)
+        self.num_patches = int(((img_dim // patch_dim) ** 3)/2)
         self.seq_length = self.num_patches
         self.flatten_dim = 128 * num_channels
 
@@ -71,7 +71,7 @@ class TransformerBTS(nn.Module):
                 padding=1
             )
 
-        self.Unet = Unet(in_channels=4, base_channels=16, num_classes=4)
+        self.Unet = Unet(in_channels=1, base_channels=16, num_classes=3)
         self.bn = nn.BatchNorm3d(128)
         self.relu = nn.ReLU(inplace=True)
 
@@ -144,7 +144,7 @@ class TransformerBTS(nn.Module):
             x.size(0),
             int(self.img_dim / self.patch_dim),
             int(self.img_dim / self.patch_dim),
-            int(self.img_dim / self.patch_dim),
+            int(self.img_dim / (2*self.patch_dim)),
             self.embedding_dim,
         )
         x = x.permute(0, 4, 1, 2, 3).contiguous()
@@ -198,7 +198,7 @@ class BTS(TransformerBTS):
         self.DeUp2 = DeUp_Cat(in_channels=self.embedding_dim//16, out_channels=self.embedding_dim//32)
         self.DeBlock2 = DeBlock(in_channels=self.embedding_dim//32)
 
-        self.endconv = nn.Conv3d(self.embedding_dim // 32, 4, kernel_size=1)
+        self.endconv = nn.Conv3d(self.embedding_dim // 32, 1, kernel_size=1)
 
 
     def decode(self, x1_1, x2_1, x3_1, x, intmd_x, intmd_layers=[1, 2, 3, 4]):
@@ -320,9 +320,9 @@ def TransBTS(dataset='brats', _conv_repr=True, _pe_type="learned"):
 
     if dataset.lower() == 'brats':
         img_dim = 128
-        num_classes = 4
+        num_classes = 3
 
-    num_channels = 4
+    num_channels = 1
     patch_dim = 8
     aux_layers = [1, 2, 3, 4]
     model = BTS(
@@ -331,6 +331,7 @@ def TransBTS(dataset='brats', _conv_repr=True, _pe_type="learned"):
         num_channels,
         num_classes,
         embedding_dim=512,
+        # embedding_dim=256,
         num_heads=8,
         num_layers=4,
         hidden_dim=4096,
@@ -348,7 +349,7 @@ if __name__ == '__main__':
         import os
         os.environ['CUDA_VISIBLE_DEVICES'] = '0'
         cuda0 = torch.device('cuda:0')
-        x = torch.rand((1, 4, 128, 128, 128), device=cuda0)
+        x = torch.rand((1, 4, 128, 128, 64), device=cuda0)
         _, model = TransBTS(dataset='brats', _conv_repr=True, _pe_type="learned")
         model.cuda()
         y = model(x)
