@@ -144,7 +144,8 @@ class TransformerBTS(nn.Module):
             x.size(0),
             int(self.img_dim / self.patch_dim),
             int(self.img_dim / self.patch_dim),
-            int(self.img_dim / (2*self.patch_dim)),
+            int(8),
+            # int(self.img_dim / (2*self.patch_dim)),
             self.embedding_dim,
         )
         x = x.permute(0, 4, 1, 2, 3).contiguous()
@@ -198,7 +199,7 @@ class BTS(TransformerBTS):
         self.DeUp2 = DeUp_Cat(in_channels=self.embedding_dim//16, out_channels=self.embedding_dim//32)
         self.DeBlock2 = DeBlock(in_channels=self.embedding_dim//32)
 
-        self.endconv = nn.Conv3d(self.embedding_dim // 32, 1, kernel_size=1)
+        self.endconv = nn.Conv3d(self.embedding_dim // 32, 3, kernel_size=1)
 
 
     def decode(self, x1_1, x2_1, x3_1, x, intmd_x, intmd_layers=[1, 2, 3, 4]):
@@ -319,7 +320,7 @@ class DeBlock(nn.Module):
 def TransBTS(dataset='brats', _conv_repr=True, _pe_type="learned"):
 
     if dataset.lower() == 'brats':
-        img_dim = 128
+        img_dim = 160
         num_classes = 3
 
     num_channels = 1

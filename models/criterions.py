@@ -52,9 +52,9 @@ def softmax_dice(output, target):
     :param target: (b, d, h, w)
     :return: softmax dice loss
     '''
-    loss1 = Dice(output[0][:, 1, ...], (target == 0).float())
-    loss2 = Dice(output[0][:, 2, ...], (target == 1).float())
-    loss3 = Dice(output[0][:, 3, ...], (target == 2).float())
+    loss1 = Dice(output[:, 0, ...], (target == 0).float())
+    loss2 = Dice(output[:, 1, ...], (target == 1).float())
+    loss3 = Dice(output[:, 2, ...], (target == 2).float())
 
     return loss1 + loss2 + loss3, 1-loss1.data, 1-loss2.data, 1-loss3.data
 

@@ -50,10 +50,10 @@ class Random_Crop(object):
         D = random.randint(0, 160 - 128)
         # image = image[H: H + 128, W: W + 128, D: D + 128, ...]
         # label = label[..., H: H + 128, W: W + 128, D: D + 128]
-        # image = image[0:160, 0:160, 3:67, ...]
-        # label = label[..., 0:160,0:160,3:67]
-        image = image[128:256, 128:256, 3:67, ...]
-        label = label[..., 128:256,128:256,3:67]
+        image = image[0:160, 0:160, 3:67, ...]
+        label = label[..., 0:160,0:160,3:67]
+        # image = image[128:256, 128:256, 3:67, ...]
+        # label = label[..., 128:256,128:256,3:67]
         return {'image': image, 'label': label}
 
 

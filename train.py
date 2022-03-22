@@ -57,10 +57,10 @@ parser.add_argument('--model_name', default='TransBTS', type=str)
 
 parser.add_argument('--input_C', default=1, type=int)
 
-parser.add_argument('--input_H', default=240, type=int)
+parser.add_argument('--input_H', default=160, type=int)
 # parser.add_argument('--input_H', default=448, type=int)
 
-parser.add_argument('--input_W', default=240, type=int)
+parser.add_argument('--input_W', default=160, type=int)
 # parser.add_argument('--input_W', default=352, type=int)
 
 parser.add_argument('--input_D', default=64, type=int)
